@@ -84,6 +84,7 @@
       '<button class="action-card" data-action="join-page"><small>01 · Studente</small><strong>ENTRA IN PARTITA</strong><span>Scrivi il codice e scegli un nome.</span></button>' +
       '<button class="action-card" data-action="host"><small>02 · Docente</small><strong>CREA UNA PARTITA</strong><span>Gestisci il tempo, le domande e la classifica.</span></button>' +
       '<button class="action-card ghost" data-action="demo"><small>03 · Prova locale</small><strong>GIOCA SU UN DISPOSITIVO</strong><span>Prova il quiz passando il telefono tra i partecipanti.</span></button>' +
+      (configAvailable() && load('epica-last-host','') ? '<button class="action-card ghost" data-action="resume"><small>04 · Docente</small><strong>RIPRENDI LA PARTITA</strong><span>Rientra nella stanza ' + safe(load('epica-last-host','')) + ' dopo una chiusura accidentale.</span></button>' : '') +
       '</div>' +
       '<p class="notice">' + (configAvailable()
         ? 'Modalità online configurata. Per una partita condivisa tutti aprono questo sito dal proprio dispositivo.'
@@ -168,6 +169,19 @@
       bindRoom(code,'host');
     } catch (e) {errorMessage=e.message || 'Impossibile creare la partita.';screen='setup';renderErrorPage('CREAZIONE NON RIUSCITA',errorMessage);}
     finally {busy=false;}
+  }
+  async function resumeHost() {
+    if(busy) return;
+    busy=true;errorMessage='';
+    try {
+      const f=await startFirebase(), code=escCode(load('epica-last-host',''));
+      if(!code) throw Error('Non è stata salvata una stanza precedente.');
+      const snap=await f.database.get(f.database.ref(f.db,'rooms/'+code+'/meta'));
+      if(!snap.exists() || snap.val().hostUid!==user.uid)
+        throw Error('La stanza non esiste o questo dispositivo non è quello che l’ha creata.');
+      bindRoom(code,'host');
+    }catch(e){errorMessage=e.message;renderErrorPage('IMPOSSIBILE RIPRENDERE',errorMessage);}
+    finally{busy=false;}
   }
   async function joinRoom(code,name) {
     if (busy) return;busy=true;errorMessage='';
@@ -386,6 +400,7 @@
     if(a==='home'){cleanup();screen='home';errorMessage='';history.replaceState(null,'',rootUrl());return render();}
     if(a==='join-page'){screen='setup';errorMessage='';return render();}
     if(a==='host'){cleanup();return createRoom();}
+    if(a==='resume'){cleanup();return resumeHost();}
     if(a==='demo'){cleanup();demo=load('epica-demo-v1',{players:[],name:'',index:0,answers:{},phase:'entry'});
       if(!Array.isArray(demo.players)||!['entry','board'].includes(demo.phase))demo={players:[],name:'',index:0,answers:{},phase:'entry'};
       screen='demo';errorMessage='';return render();}
