@@ -1,84 +1,62 @@
-/* Le voci dell'epica — quesiti ricavati esclusivamente dal PDF fornito.
- * Una sola risposta valida per quesito. Le chiavi non sono un segreto:
- * questo e' un ripasso ludico, non una verifica protetta. */
+/* LE VOCI DELL’EPICA — banca didattica.
+ * Fonti: «Verifica_epica_senza_gioco_2_pagine(1).pdf» e appunti
+ * «Dal linguaggio all’epica», forniti dal docente.
+ * Nessuna dipendenza dalla rete; revisione con verifiche-didattiche.
+ */
 (function (root, factory) {
   const api = factory();
   if (typeof module === 'object' && module.exports) module.exports = api;
   else root.EpicaQuiz = api;
 })(typeof globalThis === 'object' ? globalThis : this, function () {
   'use strict';
-  const QUESTIONS = Object.freeze([
-    {
-      id: 'aedi', objective: 'Comprendere la trasmissione orale dell’epica',
-      difficulty: 'base',
-      prompt: 'Perché gli aedi usavano formule ed epiteti quando recitavano le storie?',
-      options: [
-        { id: 'A', text: 'Per rendere i racconti storicamente più precisi.' },
-        { id: 'B', text: 'Per ricordare e ripetere meglio i racconti.' },
-        { id: 'C', text: 'Per distinguere gli eroi dai personaggi comuni.' },
-        { id: 'D', text: 'Per cambiare i nomi degli eroi a ogni recita.' }
-      ],
-      answer: 'B',
-      explanation: 'Formule ed epiteti sono espressioni ricorrenti: aiutavano i cantori a ricordare e recitare le storie.'
-    },
-    {
-      id: 'gilgamesh', objective: 'Interpretare il rapporto fra mortalità e memoria',
-      difficulty: 'intermedia',
-      prompt: 'Perché Gilgamesh guarda le mura di Uruk dopo il suo viaggio?',
-      options: [
-        { id: 'A', text: 'Le opere comuni possono durare oltre una vita.' },
-        { id: 'B', text: 'Le mura possono difenderlo anche dalla morte.' },
-        { id: 'C', text: 'La pianta di giovinezza si trova nella città.' },
-        { id: 'D', text: 'Deve abbandonare Uruk per dimenticare Enkidu.' }
-      ],
-      answer: 'A',
-      explanation: 'Non trova l’immortalità personale. Riconosce però che ciò che costruiamo per la comunità può restare.'
-    },
-    {
-      id: 'viaggi', objective: 'Confrontare le scelte di Odisseo ed Enea',
-      difficulty: 'intermedia',
-      prompt: 'Quale differenza descrive meglio il viaggio di Odisseo e quello di Enea?',
-      options: [
-        { id: 'A', text: 'Odisseo cerca una nuova patria; Enea torna a Troia.' },
-        { id: 'B', text: 'Odisseo resta con Calipso; Enea rimane con Didone.' },
-        { id: 'C', text: 'Odisseo cerca l’immortalità; Enea torna a Troia.' },
-        { id: 'D', text: 'Odisseo torna in patria; Enea cerca una nuova patria.' }
-      ],
-      answer: 'D',
-      explanation: 'Odisseo rinuncia all’immortalità per tornare a Itaca. Enea lascia Didone e prosegue verso l’Italia per il futuro del suo popolo.'
-    },
-    {
-      id: 'rostam-abu-zayd', objective: 'Confrontare le conseguenze delle scelte per il gruppo',
-      difficulty: 'avanzata',
-      prompt: 'Quale confronto è fedele alle storie di Rostam e Abū Zayd?',
-      options: [
-        { id: 'A', text: 'Rostam riconosce Sohrab prima del duello; Abū Zayd esplora travestito.' },
-        { id: 'B', text: 'Rostam ferisce Sohrab ma lo salva; Abū Zayd esplora per la tribù.' },
-        { id: 'C', text: 'Rostam perde il figlio in battaglia; Abū Zayd esplora per la tribù.' },
-        { id: 'D', text: 'Rostam perde Sohrab dopo averlo riconosciuto; Abū Zayd rimane nella sua terra.' }
-      ],
-      answer: 'C',
-      explanation: 'La lealtà di Rostam verso lo schieramento ha un costo tragico. Abū Zayd usa l’astuzia per aiutare la propria comunità in viaggio.'
-    }
-  ]);
-
+  const POINTS = 100;
+  const data = [["denaro","Linguaggio e società","base","Perché una banconota può avere un valore molto maggiore della carta di cui è fatta?",["Perché il colore indica quanto vale il denaro.","Perché le persone condividono un accordo sul suo valore.","Perché ogni banconota contiene una materia rara.","Perché il valore dipende da chi la possiede."],"B","Il valore della banconota dipende da un accordo sociale condiviso, reso possibile anche dal linguaggio.","Appunti §1"],["sociopoiesi","Linguaggio e società","intermedia","Quale situazione mostra meglio la funzione sociopoietica del linguaggio?",["Un ragazzo descrive il rumore della pioggia.","Una persona ripete una parola difficile.","Un gruppo stabilisce regole condivise per vivere insieme.","Due persone imitano il verso di un animale."],"C","Attraverso accordi e regole espressi con il linguaggio si costruisce una parte della realtà sociale.","Appunti §1"],["regole","Le decisioni collettive","intermedia","Una comunità vieta l’ingresso notturno nel magazzino per proteggerne le risorse. Quale problema deve considerare?",["La sicurezza può aumentare, ma la libertà di accesso diminuisce.","Il divieto elimina qualsiasi disaccordo fra gli abitanti.","La regola impedisce che qualcuno debba fare delle scelte.","La sicurezza dipende soltanto dal numero degli abitanti."],"A","Le regole possono tutelare un bene comune e al tempo stesso imporre limiti: le scelte hanno costi e benefici.","Appunti §2"],["scelte","Le decisioni collettive","intermedia","Una comunità usa parte delle scorte per aiutare alcune famiglie in difficoltà. Che cosa possiamo dedurre?",["Le risorse donate non riguardano gli altri abitanti.","Ogni aiuto garantisce vantaggi identici a tutti.","La comunità non ha più bisogno di stabilire regole.","Una scelta solidale può comportare sacrifici condivisi."],"D","Una decisione a favore di qualcuno può richiedere risorse o rinunce da parte di altri membri della comunità.","Appunti §2"],["memoria","Memoria collettiva","base","Che cosa accade quando una comunità tramanda i racconti del proprio passato?",["Conserva ogni avvenimento senza selezionarne nessuno.","Ricorda soltanto gli episodi accaduti di recente.","Trasmette alcuni fatti e racconti, mentre altri si perdono.","Impedisce che le generazioni cambino interpretazione."],"C","La memoria collettiva è selettiva: alcune esperienze vengono conservate e altre dimenticate.","PDF p. 1; Appunti §3"],["sguardi","Memoria collettiva","intermedia","La stessa battaglia è celebrata da un popolo e ricordata con dolore da un altro. Che cosa dimostra?",["Le battaglie sono sempre raccontate senza differenze.","Il punto di vista influenza il significato dato ai fatti.","Solo chi vince può conservare una memoria collettiva.","Il racconto di un evento cancella l’evento stesso."],"B","Uno stesso fatto può ricevere interpretazioni differenti secondo l’esperienza e il punto di vista di chi racconta.","Appunti §3"],["fonti","Memoria collettiva","avanzata","Uno storico legge il racconto di un combattente che definisce una ritirata «una vittoria morale». Qual è la distinzione più utile?",["La frase prova che la ritirata non sia mai avvenuta.","Il racconto vale soltanto se lo confermano i vincitori.","La testimonianza sostituisce la ricerca di altri fatti.","La ritirata è un evento; «vittoria morale» è un’interpretazione."],"D","Occorre distinguere l’avvenimento, la testimonianza che lo descrive e il giudizio che lo interpreta.","Appunti §3"],["epica-funzione","Che cos’è l’epica","base","Oltre a intrattenere, che cosa permettono di fare i racconti epici?",["Riflettere su valori e problemi di una comunità.","Conoscere tutti i fatti del passato senza errori.","Stabilire chi abbia davvero vissuto per primo.","Evitare che nascano opinioni diverse sulle storie."],"A","L’epica conserva e mette in discussione valori, memorie e conflitti attraverso le vicende degli eroi.","PDF p. 1; Appunti §4"],["aedi","Che cos’è l’epica","base","Perché gli aedi usavano formule ed epiteti durante la recitazione?",["Per cambiare il finale a ogni esibizione.","Per trasformare i racconti in leggi scritte.","Per ricordare e ripetere più facilmente le storie.","Per nascondere al pubblico il nome degli eroi."],"C","Le espressioni ripetute e gli epiteti aiutavano i cantori a memorizzare e recitare i racconti.","PDF p. 1"],["non-cronaca","Che cos’è l’epica","intermedia","Perché un poema epico non va trattato come una cronaca storica esatta?",["Perché le vicende narrate riguardano soltanto la famiglia.","Perché intreccia memoria, immaginazione e credenze.","Perché i racconti epici erano sempre scritti da testimoni.","Perché il protagonista non può mai compiere errori."],"B","L’epica non coincide con una registrazione oggettiva dei fatti: combina tradizione, immaginazione e credenze.","PDF p. 1"],["enkidu","Gilgamesh","base","Che cosa spinge Gilgamesh a intraprendere la ricerca dell’immortalità?",["La morte di Enkidu e la paura della propria fine.","La distruzione della città di Troia.","Il rifiuto di Penelope di accoglierlo.","L’obbligo di trovare una patria nuova."],"A","La perdita dell’amico Enkidu lo mette di fronte alla propria mortalità.","PDF p. 1; Appunti §5"],["uruk","Gilgamesh","intermedia","Perché le mura di Uruk diventano importanti alla fine del viaggio di Gilgamesh?",["Mostrano dove si trova la pianta perduta.","Provano che il serpente non può entrare in città.","Gli permettono di riconquistare l’immortalità.","Ricordano che le opere per la comunità possono durare."],"D","Gilgamesh non diventa immortale, ma riconosce ciò che può sopravvivere nella vita collettiva.","PDF p. 1"],["nessuno","Odisseo","base","Come usa Odisseo l’astuzia nell’episodio del ciclope Polifemo?",["Finge di essere il figlio del ciclope.","Dice di chiamarsi «Nessuno».","Promette di fondare una nuova città.","Si presenta come il re di Uruk."],"B","Odisseo si presenta a Polifemo con il nome «Nessuno» e usa l’inganno per salvarsi.","PDF p. 1"],["calipso","Odisseo","intermedia","Quale scelta di Odisseo rivela il valore attribuito al ritorno a casa?",["Accetta l’immortalità per dimenticare Itaca.","Rimane con Calipso per fondare un altro regno.","Rifiuta l’immortalità per tornare alla sua terra.","Abbandona Penelope per iniziare una nuova guerra."],"C","Odisseo preferisce la vita mortale con Penelope e nella propria patria all’immortalità offerta da Calipso.","PDF p. 1"],["penelope","Odisseo","base","Che cosa fa Penelope mentre i Proci occupano la casa di Odisseo?",["Resiste alle loro pressioni e rimane fedele a Odisseo.","Parte con Enea verso la costa italiana.","Lascia Itaca per cercare Gilgamesh.","Affida il regno al ciclope Polifemo."],"A","Penelope resiste ai Proci che vogliono sposarla, mantenendo il legame con Odisseo e la sua casa.","PDF p. 1"],["fuga-enea","Enea","base","Quale scena rappresenta la fuga di Enea da Troia distrutta?",["Enea conduce Achille e Patroclo fino a Itaca.","Enea lascia Ascanio per seguire la regina Didone.","Enea cerca la pianta dell’eterna giovinezza.","Enea porta Anchise sulle spalle e accompagna Ascanio."],"D","La fuga unisce tre generazioni: il padre Anchise, Enea e il figlio Ascanio.","PDF p. 1"],["pietas","Enea","intermedia","Perché Enea lascia Didone e prosegue il viaggio verso l’Italia?",["Per cercare di diventare immortale come gli dèi.","Per seguire il dovere verso il futuro del suo popolo.","Per tornare alla casa che ha lasciato a Troia.","Per combattere il proprio figlio senza riconoscerlo."],"B","Nell’Eneide la pietas lo spinge a mettere il dovere verso dèi, famiglia e popolo davanti al desiderio personale.","PDF p. 1"],["due-viaggi","Odisseo ed Enea","intermedia","Quale confronto descrive correttamente le mete di Odisseo ed Enea?",["Entrambi vogliono recuperare le mura di Uruk.","Odisseo cerca un nuovo regno, Enea torna a Itaca.","Odisseo vuole tornare a Itaca, Enea cerca una nuova patria.","Entrambi rinunciano a viaggiare per vivere a Cartagine."],"C","Odisseo desidera il ritorno nella patria perduta; Enea deve raggiungere una terra nuova per il futuro del suo popolo.","PDF p. 1, domanda 8"],["rostam","Rostam","intermedia","Quale fatto rende tragico lo scontro tra Rostam e Sohrab?",["Rostam riconosce il figlio e rifiuta di combattere.","Sohrab abbandona la guerra per seguire Didone.","Rostam scopre che il giovane combatte per Itaca.","Rostam ferisce Sohrab e solo dopo scopre che è suo figlio."],"D","La fedeltà allo schieramento e la guerra portano Rostam a uccidere il figlio senza riconoscerlo.","PDF p. 1"],["abu-zayd","Abū Zayd","base","Come fa Abū Zayd a esplorare nuove terre senza farsi riconoscere?",["Si traveste da poeta e usa la propria abilità con le parole.","Si presenta come il ciclope sconfitto da Odisseo.","Porta sulle spalle il padre per attraversare il mare.","Ruba al serpente la pianta della giovinezza."],"A","Abū Zayd ricorre al travestimento da poeta e all’astuzia per aiutare la tribù.","PDF p. 1"],["banu-hilal","Abū Zayd e i Banū Hilāl","avanzata","Per la tribù dei Banū Hilāl costretta a migrare, che cosa significa soprattutto «casa»?",["Il luogo in cui si trova una grande città fortificata.","La comunità che rimane unita durante il viaggio.","Il territorio che si riesce a conquistare in battaglia.","L’edificio in cui abita il capo della tribù."],"B","La siccità impone la migrazione; l’appartenenza è mantenuta anche dall’unità del gruppo, non solo da un luogo.","PDF p. 1"],["achille","Achille","intermedia","Quale conseguenza ha la morte di Patroclo per Achille, secondo gli appunti?",["Sceglie di cercare la pianta dell’immortalità.","Rimane definitivamente lontano dai combattimenti.","Torna in battaglia spinto dal dolore e dalla vendetta.","Abbandona i Greci per fondare una patria in Italia."],"C","La perdita di Patroclo spinge Achille a tornare a combattere, con conseguenze tragiche.","Appunti §5–6"],["arjuna","Arjuna","intermedia","Quale conflitto deve affrontare Arjuna nella tradizione epica ricordata negli appunti?",["Decidere se accettare l’immortalità offerta da Calipso.","Scegliere se migrare a causa di una lunga siccità.","Capire se rivelare al ciclope il proprio vero nome.","Decidere come agire in guerra contro i propri parenti."],"D","Arjuna affronta un dilemma fra i doveri della guerra e i legami familiari.","Appunti §5"],["perdite","Confrontare le epiche","avanzata","Gilgamesh perde Enkidu e Achille perde Patroclo. Quale differenza emerge dalle loro reazioni?",["Gilgamesh cerca di sfuggire alla morte; Achille torna a combattere.","Gilgamesh fonda una nuova patria; Achille cerca una pianta magica.","Gilgamesh lascia Didone; Achille torna a vivere con Penelope.","Gilgamesh difende Itaca; Achille abbandona la propria comunità."],"A","Entrambi soffrono per un amico perduto, ma la stessa esperienza produce scelte differenti.","Appunti §6; PDF p. 1"],["uno-molti","Individuo e comunità","avanzata","Un racconto segue una ragazza che decide di proteggere le scorte durante una carestia. Perché questa vicenda può parlare dell’intera comunità?",["Perché la protagonista possiede da sola tutte le risorse disponibili.","Perché raccontare un individuo impedisce di descrivere la società.","Perché la sua decisione coinvolge bisogni e conflitti di molte persone.","Perché le conseguenze della sua scelta riguardano soltanto lei."],"C","Le scelte individuali possono rappresentare valori e problemi collettivi: è il collegamento fondamentale della lezione.","Appunti §7; PDF p. 1"]];
+  const QUESTIONS = Object.freeze(data.map(([id, topic, difficulty, prompt, texts, answer, explanation, source]) =>
+    Object.freeze({
+      id, topic, difficulty, prompt,
+      objective: topic,
+      source,
+      type: 'choice',
+      options: Object.freeze(texts.map((text, i) => Object.freeze({ id: 'ABCD'[i], text }))),
+      answer, explanation,
+    })
+  ));
+  const MAX_SCORE = QUESTIONS.length * POINTS;
   function validate() {
-    if (QUESTIONS.length !== 4) throw Error('La partita richiede quattro domande');
-    const ids = new Set();
+    if (QUESTIONS.length !== 25) throw Error('La banca deve contenere 25 domande');
+    const ids = new Set(), stems = new Set();
     for (const q of QUESTIONS) {
-      if (ids.has(q.id)) throw Error('ID ripetuto');
-      ids.add(q.id);
-      if (!q.prompt || !q.objective || !q.explanation || q.options.length !== 4) throw Error('Quesito incompleto: ' + q.id);
+      const stem = q.prompt.trim().toLocaleLowerCase('it');
+      if (!q.id || ids.has(q.id) || stems.has(stem)) throw Error('Domanda duplicata');
+      ids.add(q.id); stems.add(stem);
+      if (!q.prompt || !q.topic || !q.source || !q.explanation || q.options.length !== 4)
+        throw Error('Domanda incompleta: ' + q.id);
       if (new Set(q.options.map(o => o.id)).size !== 4 ||
-          q.options.filter(o => o.id === q.answer).length !== 1) throw Error('Risposta ambigua: ' + q.id);
+          new Set(q.options.map(o => o.text.trim())).size !== 4 ||
+          q.options.filter(o => o.id === q.answer).length !== 1) throw Error('Alternative non valide: ' + q.id);
     }
     return true;
   }
-
   function score(answers) {
-    return QUESTIONS.reduce((sum, q) => sum + (answers && answers[q.id] === q.answer ? 100 : 0), 0);
+    return QUESTIONS.reduce((sum, q) =>
+      sum + (answers && answers[q.id] === q.answer ? POINTS : 0), 0);
   }
-
+  function hash(text) {
+    let h = 2166136261;
+    for (const char of text) { h ^= char.charCodeAt(0); h = Math.imul(h, 16777619); }
+    return h >>> 0;
+  }
+  function shuffledOptions(question, seed) {
+    if (!question || !question.options) throw Error('Domanda non valida');
+    const options = question.options.slice();
+    let state = hash(String(seed) + ':' + question.id);
+    for (let i = options.length - 1; i > 0; i--) {
+      state = (Math.imul(state, 1664525) + 1013904223) >>> 0;
+      const j = state % (i + 1);
+      [options[i], options[j]] = [options[j], options[i]];
+    }
+    return options;
+  }
   validate();
-  return Object.freeze({ QUESTIONS, validate, score });
+  return Object.freeze({ QUESTIONS, POINTS, MAX_SCORE, validate, score, shuffledOptions });
 });
