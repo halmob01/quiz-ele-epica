@@ -24,7 +24,7 @@
             ".read": "auth !== null && root.child('rooms').child($room).child('meta').child('hostUid').val() === auth.uid",
             "$uid": {
               ".read": "auth !== null && auth.uid === $uid",
-              ".write": "auth !== null && auth.uid === $uid && !data.exists() && root.child('rooms').child($room).child('players').child($uid).exists() && root.child('rooms').child($room).child('state').child('phase').val() === 'question' && root.child('rooms').child($room).child('state').child('index').val() === ($index * 1) && now >= root.child('rooms').child($room).child('state').child('startedAt').val() && now <= root.child('rooms').child($room).child('state').child('deadlineAt').val()",
+              ".write": "auth !== null && auth.uid === $uid && !data.exists() && root.child('rooms').child($room).child('players').child($uid).exists() && root.child('rooms').child($room).child('state').child('phase').val() === 'question' && $index === (root.child('rooms').child($room).child('state').child('index').val() + '') && now >= root.child('rooms').child($room).child('state').child('startedAt').val() && now <= root.child('rooms').child($room).child('state').child('deadlineAt').val()",
               ".validate": "newData.hasChildren(['choice','submittedAt']) && newData.child('choice').isString() && newData.child('choice').val().matches(/^[ABCD]$/) && newData.child('submittedAt').isNumber() && newData.child('submittedAt').val() >= now - 5000 && newData.child('submittedAt').val() <= now + 5000"
             }
           }
@@ -35,7 +35,7 @@
         },
         "results": {
           "$index": {
-            ".read": "auth !== null && (root.child('rooms').child($room).child('meta').child('hostUid').val() === auth.uid || (root.child('rooms').child($room).child('state').child('phase').val() === 'reveal' && root.child('rooms').child($room).child('state').child('index').val() === ($index * 1)) || root.child('rooms').child($room).child('state').child('phase').val() === 'finished')",
+            ".read": "auth !== null && (root.child('rooms').child($room).child('meta').child('hostUid').val() === auth.uid || (root.child('rooms').child($room).child('state').child('phase').val() === 'reveal' && $index === (root.child('rooms').child($room).child('state').child('index').val() + '')) || root.child('rooms').child($room).child('state').child('phase').val() === 'finished')",
             ".write": "auth !== null && root.child('rooms').child($room).child('meta').child('hostUid').val() === auth.uid",
             ".validate": "newData.hasChildren(['counts','answer'])"
           }
