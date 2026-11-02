@@ -1,0 +1,25 @@
+name: Verifica quiz epico
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check JavaScript syntax
+        run: |
+          node --check questions.js
+          node --check app.js
+          node --check firebase-config.js
+      - name: Verify Firebase rules JSON syntax
+        run: python3 -m json.tool database.rules.json > /dev/null
+      - name: Test question bank
+        run: node --test tests/*.test.cjs
