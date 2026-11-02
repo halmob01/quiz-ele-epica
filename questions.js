@@ -39,9 +39,9 @@
       difficulty: 'intermedia',
       prompt: 'Quale differenza descrive meglio il viaggio di Odisseo e quello di Enea?',
       options: [
-        { id: 'A', text: 'Odisseo cerca un'altra patria; Enea torna a Troia.' },
+        { id: 'A', text: 'Odisseo cerca una nuova patria; Enea torna a Troia.' },
         { id: 'B', text: 'Odisseo resta con Calipso; Enea rimane con Didone.' },
-        { id: 'C', text: 'Odisseo cerca l'immortalità; Enea torna a Troia.' },
+        { id: 'C', text: 'Odisseo cerca l’immortalità; Enea torna a Troia.' },
         { id: 'D', text: 'Odisseo torna in patria; Enea cerca una nuova patria.' }
       ],
       answer: 'D',
