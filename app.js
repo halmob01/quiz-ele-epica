@@ -17,7 +17,7 @@
   let busy = false, errorMessage = '';
   const safe = x => String(x == null ? '' : x).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const msg = text => text ? '<div class="feedback-error" role="alert">' + safe(text) + '</div>' : '';
-  const short = s => String(s || '').trim().replace(/\\s+/g, ' ').slice(0, 24);
+  const short = s => String(s || '').trim().replace(/\s+/g, ' ').slice(0, 24);
   const configAvailable = () => !!(window.QUIZ_FIREBASE_CONFIG && window.QUIZ_FIREBASE_CONFIG.apiKey && window.QUIZ_FIREBASE_CONFIG.databaseURL && window.QUIZ_FIREBASE_CONFIG.projectId);
   const save = (key, value) => { try { localStorage.setItem(key, JSON.stringify(value)); } catch (_) {} };
   const load = (key, fallback) => { try { return JSON.parse(localStorage.getItem(key)) || fallback; } catch (_) { return fallback; } };
@@ -139,7 +139,7 @@
     user = a.currentUser || (await auth.signInAnonymously(a)).user;
     const db = database.getDatabase(application);
     firebase = {app,auth,database,db};
-    stopRoom.push(database.onValue(database.ref(db,'.info/serverTimeOffset'), snap => {serverOffset = Number(snap.val()) || 0;}));
+    database.onValue(database.ref(db,'.info/serverTimeOffset'), snap => {serverOffset = Number(snap.val()) || 0;});
     return firebase;
   }
   const rref = suffix => firebase.database.ref(firebase.db, 'rooms/' + roomCode + (suffix ? '/' + suffix : ''));
