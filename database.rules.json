@@ -2,7 +2,7 @@
   "rules": {
     "rooms": {
       "$room": {
-        ".write": "auth !== null && !data.exists() && newData.hasChildren(['meta','state']) && newData.childrenCount() === 2 && newData.child('meta/hostUid').val() === auth.uid && newData.child('state/phase').val() === 'lobby'",
+        ".write": "auth !== null && !data.exists() && newData.hasChildren(['meta','state']) && newData.child('meta/hostUid').val() === auth.uid && newData.child('state/phase').val() === 'lobby'",
         "meta": {
           ".read": "auth !== null",
           ".write": false
@@ -16,7 +16,7 @@
           ".read": "auth !== null",
           "$uid": {
             ".write": "auth !== null && auth.uid === $uid && !data.exists() && root.child('rooms').child($room).child('state').child('phase').val() === 'lobby'",
-            ".validate": "newData.hasChildren(['name','joinedAt']) && newData.childrenCount() === 2 && newData.child('name').isString() && newData.child('name').val().length >= 1 && newData.child('name').val().length <= 24 && newData.child('joinedAt').isNumber()"
+            ".validate": "newData.hasChildren(['name','joinedAt']) && newData.child('name').isString() && newData.child('name').val().length >= 1 && newData.child('name').val().length <= 24 && newData.child('joinedAt').isNumber()"
           }
         },
         "submissions": {
@@ -25,7 +25,7 @@
             "$uid": {
               ".read": "auth !== null && auth.uid === $uid",
               ".write": "auth !== null && auth.uid === $uid && !data.exists() && root.child('rooms').child($room).child('players').child($uid).exists() && root.child('rooms').child($room).child('state').child('phase').val() === 'question' && root.child('rooms').child($room).child('state').child('index').val() === ($index * 1) && now >= root.child('rooms').child($room).child('state').child('startedAt').val() && now <= root.child('rooms').child($room).child('state').child('deadlineAt').val()",
-              ".validate": "newData.hasChildren(['choice','submittedAt']) && newData.childrenCount() === 2 && newData.child('choice').isString() && newData.child('choice').val().matches(/^[ABCD]$/) && newData.child('submittedAt').isNumber() && newData.child('submittedAt').val() >= now - 5000 && newData.child('submittedAt').val() <= now + 5000"
+              ".validate": "newData.hasChildren(['choice','submittedAt']) && newData.child('choice').isString() && newData.child('choice').val().matches(/^[ABCD]$/) && newData.child('submittedAt').isNumber() && newData.child('submittedAt').val() >= now - 5000 && newData.child('submittedAt').val() <= now + 5000"
             }
           }
         },
