@@ -13,10 +13,10 @@
       difficulty: 'base',
       prompt: 'Perché gli aedi usavano formule ed epiteti quando recitavano le storie?',
       options: [
-        { id: 'A', text: 'Per trasformare i racconti in cronache esatte.' },
+        { id: 'A', text: 'Per rendere i racconti storicamente più precisi.' },
         { id: 'B', text: 'Per ricordare e ripetere meglio i racconti.' },
-        { id: 'C', text: 'Per scegliere quali eroi meritassero il potere.' },
-        { id: 'D', text: 'Per nascondere i nomi degli eroi al pubblico.' }
+        { id: 'C', text: 'Per distinguere gli eroi dai personaggi comuni.' },
+        { id: 'D', text: 'Per cambiare i nomi degli eroi a ogni recita.' }
       ],
       answer: 'B',
       explanation: 'Formule ed epiteti sono espressioni ricorrenti: aiutavano i cantori a ricordare e recitare le storie.'
@@ -27,9 +27,9 @@
       prompt: 'Perché Gilgamesh guarda le mura di Uruk dopo il suo viaggio?',
       options: [
         { id: 'A', text: 'Le opere comuni possono durare oltre una vita.' },
-        { id: 'B', text: 'Le mura possono proteggerlo dalla vecchiaia.' },
-        { id: 'C', text: 'La pianta perduta è nascosta sotto la città.' },
-        { id: 'D', text: 'Il suo regno deve essere lasciato per sempre.' }
+        { id: 'B', text: 'Le mura possono difenderlo anche dalla morte.' },
+        { id: 'C', text: 'La pianta di giovinezza si trova nella città.' },
+        { id: 'D', text: 'Deve abbandonare Uruk per dimenticare Enkidu.' }
       ],
       answer: 'A',
       explanation: 'Non trova l’immortalità personale. Riconosce però che ciò che costruiamo per la comunità può restare.'
@@ -39,9 +39,9 @@
       difficulty: 'intermedia',
       prompt: 'Quale differenza descrive meglio il viaggio di Odisseo e quello di Enea?',
       options: [
-        { id: 'A', text: 'Odisseo cerca Troia; Enea cerca di tornare a Itaca.' },
-        { id: 'B', text: 'Odisseo lascia Penelope; Enea rimane con Didone.' },
-        { id: 'C', text: 'Odisseo conquista Uruk; Enea difende la città.' },
+        { id: 'A', text: 'Odisseo cerca un'altra patria; Enea torna a Troia.' },
+        { id: 'B', text: 'Odisseo resta con Calipso; Enea rimane con Didone.' },
+        { id: 'C', text: 'Odisseo cerca l'immortalità; Enea torna a Troia.' },
         { id: 'D', text: 'Odisseo torna in patria; Enea cerca una nuova patria.' }
       ],
       answer: 'D',
@@ -52,10 +52,10 @@
       difficulty: 'avanzata',
       prompt: 'Quale confronto è fedele alle storie di Rostam e Abū Zayd?',
       options: [
-        { id: 'A', text: 'Rostam abbandona la guerra; Abū Zayd rifiuta di migrare.' },
-        { id: 'B', text: 'Rostam salva Sohrab; Abū Zayd abbandona la tribù.' },
+        { id: 'A', text: 'Rostam riconosce Sohrab prima del duello; Abū Zayd esplora travestito.' },
+        { id: 'B', text: 'Rostam ferisce Sohrab ma lo salva; Abū Zayd esplora per la tribù.' },
         { id: 'C', text: 'Rostam perde il figlio in battaglia; Abū Zayd esplora per la tribù.' },
-        { id: 'D', text: 'Rostam cerca l’immortalità; Abū Zayd torna a Itaca.' }
+        { id: 'D', text: 'Rostam perde Sohrab dopo averlo riconosciuto; Abū Zayd rimane nella sua terra.' }
       ],
       answer: 'C',
       explanation: 'La lealtà di Rostam verso lo schieramento ha un costo tragico. Abū Zayd usa l’astuzia per aiutare la propria comunità in viaggio.'
