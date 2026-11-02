@@ -112,3 +112,10 @@ h1{font-size:clamp(2.55rem,6.9vw,5.5rem);letter-spacing:-.025em} h2{font-size:cl
   .panel{box-shadow:5px 5px 0 var(--plum)}
 }
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
+
+/* Quiz esteso: punteggio visibile mentre si risponde. */
+.live-strip{max-width:1000px;display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;background:var(--ink);color:var(--white);padding:1rem 1.3rem;margin:1rem 0}
+.live-strip strong{font:400 clamp(1.5rem,4vw,2.4rem)/1 var(--display);font-variant-numeric:tabular-nums;white-space:nowrap}
+.live-strip small{font:.65rem var(--ui);font-weight:700;opacity:.83}
+.live-strip span{font-size:.86rem}
+.live-strip b{font-weight:800}
