@@ -36,6 +36,7 @@ function rows_() {
 function doGet(e) {
   try {
     const list=rows_().map(r=>({
+      id:String(r[0]||''),
       name:String(r[1]||'').slice(0,24),
       score:Number(r[2])||0,
       answered:Number(r[3])||0,
@@ -56,7 +57,8 @@ function doPost(e) {
     const name=String(body.name||'').trim().replace(/\s+/g,' ').slice(0,24);
     const answers=body.answers;
     if(!/^[a-zA-Z0-9_-]{16,80}$/.test(id)||!/^[a-f0-9]{32,128}$/.test(token)||
-       !name||!Array.isArray(answers)||answers.length>MAX||answers.some(a=>!['A','B','C','D'].includes(a)))
+       !name||/^[=+\-@]/.test(name)||/[\x00-\x1f]/.test(name)||
+       !Array.isArray(answers)||answers.length>MAX||answers.some(a=>!['A','B','C','D'].includes(a)))
        return response_({ok:false,error:'DATI_NON_VALIDI'});
     if(!lock.tryLock(15000))return response_({ok:false,error:'RIPROVA'});
     const sh=sheet_(), rows=rows_(), key=digest_(token);
