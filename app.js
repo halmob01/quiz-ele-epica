@@ -276,6 +276,14 @@
    state=fresh();screen='board';save();return render();
   }
  }
+ // Il marchio è fuori da #app: senza questo handler il link ricaricherebbe
+ // la pagina e riprenderebbe la partita invece di mostrare la home.
+ const brandLink=document.querySelector('.wordmark');
+ if(brandLink)brandLink.addEventListener('click',ev=>{
+  if(ev.button!==0||ev.metaKey||ev.ctrlKey||ev.shiftKey||ev.altKey)return;
+  ev.preventDefault();
+  act('home');
+ });
  root.addEventListener('click',ev=>{const b=ev.target.closest('[data-action]');if(b&&!b.disabled&&root.contains(b))act(b.dataset.action,b.dataset.choice)});
  root.addEventListener('submit',ev=>{if(ev.target.id==='start-form'){ev.preventDefault();start(ev.target.elements.player.value)}});
  if(configured){
