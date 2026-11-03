@@ -11,9 +11,8 @@ https://docs.google.com/spreadsheets/d/1C3jCI4tcoDFzsceYvk5Y7TBGXzIDTW-wjSC0-o61
 2. Sostituisci il contenuto di `Code.gs` con il file [apps-script/Code.gs](apps-script/Code.gs) della repository; salva.
 3. Premi **Distribuisci → Nuova distribuzione → App web**. Scegli **Esegui come: Me** e **Accesso: Chiunque**, autorizza e distribuisci.
 4. Copia l'URL risultante, che termina con `/exec`.
-5. Modifica [sheets-config.js](sheets-config.js) su GitHub, impostando:
-   `window.EPICA_SHEETS_URL = 'https://script.google.com/macros/s/ID_DISTRIBUZIONE/exec';`
-6. Salva su `main` e ricarica GitHub Pages dopo la pubblicazione.
+5. L'URL di una Web App è **già presente** in [sheets-config.js](sheets-config.js). Se la distribuzione appena creata fornisce un URL diverso, sostituiscilo in quel file. Non usare il link diretto al foglio.
+6. Salva su `main` e ricarica GitHub Pages dopo la pubblicazione. Il collegamento va verificato aprendo la Web App da un browser senza accesso Google.
 
 Controllo: aprendo l'URL dello script dovresti vedere un JSON con `"ok":true`. Sul quiz, dopo cinque risposte, controlla che una riga sia apparsa nella scheda Classifica.
 
@@ -33,4 +32,4 @@ Le 25 domande derivano dal PDF «Le voci dell’epica» e dagli appunti «Dal li
 
 ## Stato dei test
 
-La partita locale completa e l'invio del primo checkpoint sono stati simulati. La Web App non è ancora pubblicata: il collaudo reale con più telefoni richiede la distribuzione dal tuo account Google.
+La partita locale completa e l'invio del primo checkpoint sono stati simulati. Un URL /exec è configurato nella repository, ma non ho potuto verificarne l'accessibilità dal mio ambiente. Il collaudo reale richiede una lettura JSON riuscita dalla Web App e una prova di scrittura con più telefoni.
