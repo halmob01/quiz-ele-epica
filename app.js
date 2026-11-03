@@ -108,14 +108,82 @@
    (ranked.length?ranked.map((p,i)=>'<tr><td class="rank">'+(i+1)+'</td><td>'+esc(p.name)+(p.complete?'':' <small>('+Number(p.answered||0)+'/25)</small>')+'</td><td>'+Number(p.score)+'</td></tr>').join(''):'<tr><td colspan="3">Nessun punteggio disponibile.</td></tr>')+'</tbody></table></div>';
  }
  function controls() {return '<div class="btn-row"><button class="btn secondary" data-action="home">Torna al menu</button></div>';}
+ // QR verificato: https://halmob01.github.io/quiz-ele-epica/?gioca=1
+ // Matrice incorporata: nessun servizio esterno, QR utilizzabile anche offline.
+ const QR_JOIN_URL='https://halmob01.github.io/quiz-ele-epica/?gioca=1';
+ const QR_JOIN_ROWS=`000000000000
+000000000000
+000000000000
+000000000000
+01fd7ec6c7f0
+01051f875410
+017480be75d0
+0174fd4b95d0
+017415f3c5d0
+0104ab2cd410
+01fd555557f0
+0000a595b000
+008755555830
+0013102bd9a0
+007f3ed4f670
+01db672647b0
+0165c68536a0
+0192c5363a60
+0174bca9b290
+011b6a204fd0
+007eb6fa9d50
+0062f5cd3a00
+0105e4f2f050
+00ea06e50600
+00062f95cfd0
+000836667300
+0067ac2824f0
+01b0d1976e30
+01e7f6e3dca0
+0163597ed400
+0176ebe40670
+0141d95169f0
+013e9977dff0
+0001157a91a0
+01fd135215f0
+0104ec991180
+0174a3fdff50
+0174d214f4a0
+0174c9970ad0
+01057c065e90
+01fcc9f11c90
+000000000000
+000000000000
+000000000000
+000000000000`.trim().split(/\s+/);
+ function joinQrSvg() {
+  const path=[];
+  for(let y=0;y<QR_JOIN_ROWS.length;y++){
+   const row=BigInt('0x'+QR_JOIN_ROWS[y]);
+   let begin=-1;
+   for(let x=0;x<=45;x++){
+    const dark=x<45 && (row & (1n << BigInt(44-x)))!==0n;
+    if(dark&&begin<0)begin=x;
+    if(!dark&&begin>=0){
+     path.push('M'+begin+' '+y+'h'+(x-begin)+'v1H'+begin+'z');
+     begin=-1;
+    }
+   }
+  }
+  return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 45 45" aria-hidden="true" focusable="false" shape-rendering="crispEdges">'+
+   '<rect width="45" height="45" fill="#fff"/><path fill="#211d2a" d="'+path.join('')+'"/></svg>';
+ }
  function renderHome() {
-  root.innerHTML='<section class="hero"><span class="kicker">LETTERATURA · LINGUAGGIO, COMUNITÀ, MEMORIA</span>'+
+  root.innerHTML='<section class="home-intro"><div class="hero"><span class="kicker">LETTERATURA · LINGUAGGIO, COMUNITÀ, MEMORIA</span>'+
   '<h1>LE VOCI <em>DELL’EPICA</em></h1>'+
   '<p class="lead">25 domande, quattro alternative ciascuna. Il punteggio cambia dopo ogni risposta. Confrontati con la classe nella classifica condivisa.</p>'+
-  '<div class="hero-art" aria-hidden="true"><span>I</span><span>II</span><span>III</span><span>IV</span></div></section>'+
+  '<div class="hero-art" aria-hidden="true"><span>I</span><span>II</span><span>III</span><span>IV</span></div></div>'+ 
+  '<aside class="qr-invite"><span class="kicker">ENTRA DAL TELEFONO</span>'+ 
+  '<a class="qr-invite-link" href="'+QR_JOIN_URL+'" aria-label="Apri il quiz sul telefono">'+joinQrSvg()+'</a>'+ 
+  '<strong>INQUADRA E GIOCA</strong><p>Inserisci il tuo nome e inizia.</p></aside></section>'+
   '<div class="button-grid"><button class="action-card" data-action="'+(current()?'resume':'new')+'"><small>01 · Il torneo</small><strong>'+(current()?'RIPRENDI IL QUIZ':'INIZIA IL QUIZ')+'</strong><span>'+(current()?'Continua la partita interrotta.':'Inserisci un nome e comincia.')+'</span></button>'+
   '<button class="action-card ghost" data-action="leaderboard"><small>02 · Punteggi</small><strong>CLASSIFICA</strong><span>Consulta i risultati già completati.</span></button></div>'+
-  '<p class="notice">'+(configured?'Ogni studente può giocare dal proprio telefono. La classifica condivisa viene letta da Google Sheets ogni 10 secondi; le risposte sono inviate ogni 5 domande e alla conclusione.':'Classifica condivisa non ancora collegata: puoi comunque giocare e conservare i punteggi su questo dispositivo.')+'</p>';
+  '';
  }
  function renderNew(error='') {
   root.innerHTML='<section class="panel"><span class="kicker">NUOVO PARTECIPANTE</span><h1>COME TI CHIAMI?</h1>'+
@@ -152,7 +220,7 @@
     leaderboard()+'<div class="btn-row"><button type="button" class="btn" data-action="new">Nuovo partecipante</button>'+
     '<button type="button" class="btn secondary" data-action="home">Menu</button>'+
     (configured?'<button type="button" class="btn secondary" data-action="refresh">Aggiorna adesso</button>':'<button type="button" class="btn secondary" data-action="reset">Azzera classifica locale</button>')+'</div>'+
-    '<p class="note-small">I risultati non sono voti scolastici. Il docente può azzerare la classifica condivisa dal proprio Apps Script.</p></section>';
+    '</section>';
  }
  function renderEnd() {
   const s=current(), scoreValue=score();
@@ -214,6 +282,8 @@
    if(!document.hidden){pollShared(true);maybeSync(true)}
   });
  }
- if(new URLSearchParams(location.search).has('classifica')&&!state.current)screen='board';
+ const startParams=new URLSearchParams(location.search);
+ if(!state.current && startParams.has('classifica'))screen='board';
+ else if(!state.current && startParams.has('gioca'))screen='new';
  render();
 })();
