@@ -50,3 +50,12 @@ test('le chiavi sorgenti sono distribuite e la corretta non è sistematicamente 
   assert.ok(Math.max(...Object.values(counts))-Math.min(...Object.values(counts))<=2);
   assert.ok(longest<13);
 });
+
+test('Google Apps Script corregge le stesse 25 risposte della banca', () => {
+ const fs = require('node:fs');
+ const path = require('node:path');
+ const script=fs.readFileSync(path.join(__dirname,'../apps-script/Code.gs'),'utf8');
+ const match=script.match(/const ANSWER_KEY = (\[[^;]+\]);/);
+ assert.ok(match,'Chiavi Apps Script presenti');
+ assert.deepEqual(JSON.parse(match[1]),quiz.QUESTIONS.map(q=>q.answer));
+});
