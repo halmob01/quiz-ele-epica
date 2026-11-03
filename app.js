@@ -1,32 +1,121 @@
-/* Torneo locale, nessun server, nessun account e nessun servizio di fatturazione.
-   Ogni studente gioca a turno sullo stesso dispositivo. */
+/* Torneo: punteggio immediato in locale; classifica condivisa opzionale
+   tramite Google Sheets + Apps Script, senza Firebase. */
 (function () {
  'use strict';
  const root=document.getElementById('app'), bank=window.EpicaQuiz, questions=bank.QUESTIONS;
  const KEY='quiz-ele-epica-local-v2';
- const fresh=()=>({players:[],current:null});
+ const WEB_APP_URL=String(window.EPICA_SHEETS_URL||'').trim();
+ const configured=/^https:\/\/script\.google\.com\/macros\/s\/[\w-]+\/exec$/.test(WEB_APP_URL);
+ let sharedRows=[],sharedStatus=configured?'loading':'not-configured';
+ let lastSyncAttempt=0, lastPoll=0, syncBusy=false, pollBusy=false;
+ const hex=bytes=>Array.from(bytes,b=>b.toString(16).padStart(2,'0')).join('');
+ const freshId=()=>hex(crypto.getRandomValues(new Uint8Array(16)));
+ const freshToken=()=>hex(crypto.getRandomValues(new Uint8Array(32)));
+ const safeName=name=>name.trim().replace(/\s+/g,' ').replace(/^[=+@-]+/,'').slice(0,24);
+ const answerList=s=>questions.slice(0,questions.length).map(q=>s.answers[q.id]).filter(a=>a!==undefined);
+ function fullPrefix(s) {
+  const result=[];
+  for(const q of questions) {
+   if (!Object.prototype.hasOwnProperty.call(s.answers,q.id)) break;
+   result.push(s.answers[q.id]);
+  }
+  return result;
+ }
+ function ensureIds(s){
+  if(!s.id||!s.token){s.id=freshId();s.token=freshToken()}
+  return s;
+ }
+ const endpoint=() => WEB_APP_URL + (WEB_APP_URL.includes('?')?'&':'?');
+ function readJsonp() {
+  return new Promise((resolve,reject)=>{
+   const callback='epicaCb'+Math.floor(Math.random()*1e9).toString(36);
+   const script=document.createElement('script');
+   const timeout=setTimeout(()=>finish(new Error('timeout')),12000);
+   let done=false;
+   function finish(error,result){
+    if(done)return;done=true;clearTimeout(timeout);
+    delete window[callback];script.remove();
+    if(error)reject(error);else resolve(result);
+   }
+   window[callback]=data=>finish(null,data);
+   script.onerror=()=>finish(new Error('network'));
+   script.src=endpoint()+'callback='+callback+'&t='+Date.now();
+   document.head.appendChild(script);
+  });
+ }
+ async function pollShared(force=false){
+  if(!configured||pollBusy||(!force&&document.hidden))return;
+  pollBusy=true;
+  try{
+   const answer=await readJsonp();
+   if(!answer||answer.ok!==true||!Array.isArray(answer.rows))throw Error('response');
+   sharedRows=answer.rows.filter(r=>r&&typeof r.id==='string'&&typeof r.name==='string'&&
+    Number.isFinite(Number(r.score))&&Number.isInteger(Number(r.answered)));
+   sharedStatus='ok';lastPoll=Date.now();
+   const ack=state.current&&sharedRows.find(r=>r.id===state.current.id);
+   if(ack&&state.current){state.current.remoteAck=Math.max(state.current.remoteAck||0,Number(ack.answered)||0);save()}
+   const before=state.outbox.length;
+   state.outbox=state.outbox.filter(s=>!sharedRows.some(r=>r.id===s.id&&r.answered>=s.answers.length));
+   if(before!==state.outbox.length)save();
+   if(screen==='board'&&!state.current)renderBoard();
+  }catch(_){sharedStatus='error';if(screen==='board'&&!state.current)renderBoard()}
+  finally{pollBusy=false}
+ }
+ async function postCheckpoint(session){
+  if(!configured||syncBusy||!session||!session.id||!session.token)return;
+  const answers=Array.isArray(session.answers)?session.answers:fullPrefix(session);
+  if(!answers.length||answers.length>questions.length)return;
+  syncBusy=true;lastSyncAttempt=Date.now();
+  try{
+   await fetch(WEB_APP_URL,{
+    method:'POST',mode:'no-cors',redirect:'follow',keepalive:false,
+    headers:{'Content-Type':'text/plain;charset=utf-8'},
+    body:JSON.stringify({id:session.id,token:session.token,name:session.name,answers})
+   });
+   // no-cors ha risposta opaca: confermare solo leggendo il record dal foglio.
+   setTimeout(()=>pollShared(true),1800);
+  }catch(_){sharedStatus='error'}
+  finally{syncBusy=false}
+ }
+ function maybeSync(force=false){
+  if(!configured||syncBusy||Date.now()-lastSyncAttempt<4000)return;
+  const pending=state.outbox[0];
+  if(pending){postCheckpoint(pending);return}
+  const s=state.current;
+  if(!s)return;
+  const count=fullPrefix(s).length;
+  if(count>0&&(force||count===25||count%5===0)&&(count>(s.remoteAck||0)))
+   postCheckpoint(s);
+ }
+
+ const fresh=()=>({players:[],current:null,outbox:[]});
  const read=()=>{try{const v=JSON.parse(localStorage.getItem(KEY));return v&&Array.isArray(v.players)?v:fresh()}catch(_){return fresh()}};
  let state=read();
+ if(!Array.isArray(state.outbox))state.outbox=[];
+ if(state.current&&configured){ensureIds(state.current)}
  const esc=v=>String(v==null?'':v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[c]));
  const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(state))}catch(_){root.insertAdjacentHTML('beforeend','<p role="alert">Il browser non permette di salvare i risultati.</p>')}};
  const ranks=()=>state.players.slice().sort((a,b)=>b.score-a.score||a.name.localeCompare(b.name,'it'));
+ const rankEntries=()=>configured&&sharedStatus==='ok'
+   ?sharedRows.slice().sort((a,b)=>b.score-a.score||b.answered-a.answered||a.name.localeCompare(b.name,'it'))
+   :configured?[]:ranks();
  const current=()=>state.current;
  const score=()=>bank.score(current().answers);
  const answered=()=>Object.keys(current().answers).length;
  function leaderboard() {
-  const ranked=ranks();
+  const ranked=rankEntries();
   return '<div class="score-wrap"><table class="score-table"><thead><tr><th>Pos.</th><th>Partecipante</th><th>Punti</th></tr></thead><tbody>'+
-   (ranked.length?ranked.map((p,i)=>'<tr><td class="rank">'+(i+1)+'</td><td>'+esc(p.name)+'</td><td>'+p.score+'</td></tr>').join(''):'<tr><td colspan="3">La classifica è vuota.</td></tr>')+'</tbody></table></div>';
+   (ranked.length?ranked.map((p,i)=>'<tr><td class="rank">'+(i+1)+'</td><td>'+esc(p.name)+(p.complete?'':' <small>('+Number(p.answered||0)+'/25)</small>')+'</td><td>'+Number(p.score)+'</td></tr>').join(''):'<tr><td colspan="3">Nessun punteggio disponibile.</td></tr>')+'</tbody></table></div>';
  }
  function controls() {return '<div class="btn-row"><button class="btn secondary" data-action="home">Torna al menu</button></div>';}
  function renderHome() {
   root.innerHTML='<section class="hero"><span class="kicker">LETTERATURA · LINGUAGGIO, COMUNITÀ, MEMORIA</span>'+
   '<h1>LE VOCI <em>DELL’EPICA</em></h1>'+
-  '<p class="lead">25 domande, quattro alternative ciascuna. Il punteggio cambia dopo ogni risposta. Alla fine scopri la tua posizione nella classifica.</p>'+
+  '<p class="lead">25 domande, quattro alternative ciascuna. Il punteggio cambia dopo ogni risposta. Confrontati con la classe nella classifica condivisa.</p>'+
   '<div class="hero-art" aria-hidden="true"><span>I</span><span>II</span><span>III</span><span>IV</span></div></section>'+
   '<div class="button-grid"><button class="action-card" data-action="'+(current()?'resume':'new')+'"><small>01 · Il torneo</small><strong>'+(current()?'RIPRENDI IL QUIZ':'INIZIA IL QUIZ')+'</strong><span>'+(current()?'Continua la partita interrotta.':'Inserisci un nome e comincia.')+'</span></button>'+
   '<button class="action-card ghost" data-action="leaderboard"><small>02 · Punteggi</small><strong>CLASSIFICA</strong><span>Consulta i risultati già completati.</span></button></div>'+
-  '<p class="notice">Un solo dispositivo, passato da uno studente all’altro. Risposte e classifica restano in questo browser, anche dopo aver chiuso la pagina. Nessun Firebase e nessun costo di servizio.</p>';
+  '<p class="notice">'+(configured?'Ogni studente può giocare dal proprio telefono. La classifica condivisa viene letta da Google Sheets ogni 10 secondi; le risposte sono inviate ogni 5 domande e alla conclusione.':'Classifica condivisa non ancora collegata: puoi comunque giocare e conservare i punteggi su questo dispositivo.')+'</p>';
  }
  function renderNew(error='') {
   root.innerHTML='<section class="panel"><span class="kicker">NUOVO PARTECIPANTE</span><h1>COME TI CHIAMI?</h1>'+
@@ -57,12 +146,13 @@
    '</section>';
  }
  function renderBoard() {
-  root.innerHTML='<section class="panel wide"><span class="kicker">RISULTATI · UN SOLO DISPOSITIVO</span><h1>CLASSIFICA</h1>'+
-    '<p class="lead">Ogni risposta corretta vale 100 punti. Il massimo è '+bank.MAX_SCORE+' punti. In caso di parità, i partecipanti hanno lo stesso punteggio.</p>'+
+  root.innerHTML='<section class="panel wide"><span class="kicker">RISULTATI · '+(configured?'GOOGLE SHEETS':'DISPOSITIVO')+'</span><h1>CLASSIFICA</h1>'+
+    '<p class="lead">Ogni risposta corretta vale 100 punti. Il massimo è '+bank.MAX_SCORE+' punti.</p>'+
+    (configured?'<div class="feedback-info">'+(sharedStatus==='ok'?'Classifica condivisa · aggiornamento ogni 10 secondi':sharedStatus==='error'?'Connessione al foglio non disponibile: ricontrolla il collegamento.':'In collegamento con Google Sheets…')+(state.outbox.length?' · '+state.outbox.length+' risultato/i in attesa di conferma':'')+'</div>':'<p class="note-small">Classifica locale: il foglio non è ancora collegato.</p>')+
     leaderboard()+'<div class="btn-row"><button type="button" class="btn" data-action="new">Nuovo partecipante</button>'+
     '<button type="button" class="btn secondary" data-action="home">Menu</button>'+
-    '<button type="button" class="btn secondary" data-action="reset">Azzera classifica</button></div>'+
-    '<p class="note-small">I risultati non sono voti scolastici e non vengono trasmessi ad alcun server.</p></section>';
+    (configured?'<button type="button" class="btn secondary" data-action="refresh">Aggiorna adesso</button>':'<button type="button" class="btn secondary" data-action="reset">Azzera classifica locale</button>')+'</div>'+
+    '<p class="note-small">I risultati non sono voti scolastici. Il docente può azzerare la classifica condivisa dal proprio Apps Script.</p></section>';
  }
  function renderEnd() {
   const s=current(), scoreValue=score();
@@ -79,9 +169,9 @@
  let screen='home';
  function start(name) {
   if(current())return;
-  const normalized=name.trim().replace(/\s+/g,' ').slice(0,24);
+  const normalized=safeName(name);
   if(!normalized)return renderNew('Inserisci un nome.');
-  state.current={name:normalized,index:0,answers:{},seed:'epica-2026'};
+  state.current={name:normalized,index:0,answers:{},seed:'epica-2026',id:freshId(),token:freshToken(),remoteAck:0};
   save();render();
  }
  function act(action,choice) {
@@ -93,18 +183,20 @@
    const s=current();if(!s||s.index>=questions.length)return;
    const q=questions[s.index];if(Object.prototype.hasOwnProperty.call(s.answers,q.id))return;
    if(!q.options.some(o=>o.id===choice))return;
-   s.answers[q.id]=choice;save();return render();
+   s.answers[q.id]=choice;save();maybeSync();return render();
   }
   if(action==='next'){
    const s=current();if(!s||s.index>=questions.length)return;
    if(!Object.prototype.hasOwnProperty.call(s.answers,questions[s.index].id))return;
-   s.index++;save();return render();
+   s.index++;save();maybeSync();return render();
   }
   if(action==='save-result'){
    const s=current();if(!s||s.index<questions.length||answered()!==questions.length)return;
    state.players.push({name:s.name,score:score(),correct:score()/bank.POINTS});
-   state.current=null;screen='board';save();return render();
+   if(configured)state.outbox.push({id:s.id,token:s.token,name:s.name,answers:fullPrefix(s)});
+   state.current=null;screen='board';save();maybeSync(true);pollShared(true);return render();
   }
+  if(action==='refresh'){pollShared(true);return}
   if(action==='reset'){
    if(!confirm('Eliminare tutti i risultati della classifica?'))return;
    state=fresh();screen='board';save();return render();
@@ -112,5 +204,16 @@
  }
  root.addEventListener('click',ev=>{const b=ev.target.closest('[data-action]');if(b&&!b.disabled&&root.contains(b))act(b.dataset.action,b.dataset.choice)});
  root.addEventListener('submit',ev=>{if(ev.target.id==='start-form'){ev.preventDefault();start(ev.target.elements.player.value)}});
+ if(configured){
+  pollShared(true);
+  maybeSync(true);
+  setInterval(()=>{
+   if(!document.hidden){pollShared();maybeSync()}
+  },10000);
+  document.addEventListener('visibilitychange',()=>{
+   if(!document.hidden){pollShared(true);maybeSync(true)}
+  });
+ }
+ if(new URLSearchParams(location.search).has('classifica')&&!state.current)screen='board';
  render();
 })();
