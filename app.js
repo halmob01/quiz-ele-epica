@@ -203,7 +203,7 @@
  function renderQuestion() {
   const s=current(), q=questions[s.index], chosen=s.answers[q.id], hasAnswer=chosen!==undefined;
   const opts=bank.shuffledOptions(q,s.seed);
-  root.innerHTML='<div class="quiz-top"><span class="kicker">'+esc(q.topic)+' · '+esc(q.difficulty)+'</span><span class="tag">DOMANDA '+(s.index+1)+' / '+questions.length+'</span></div>'+
+  root.innerHTML='<div class="quiz-top"><button type="button" class="btn secondary tiny" data-action="back">← Indietro</button><span class="kicker">'+esc(q.topic)+' · '+esc(q.difficulty)+'</span><span class="tag">DOMANDA '+(s.index+1)+' / '+questions.length+'</span></div>'+
    scoreboard()+progress(s.index)+
    '<section class="question-area"><h2 class="question-stem">'+esc(q.prompt)+'</h2><div class="answers">'+
    opts.map((o,i)=>'<button class="answer'+(hasAnswer&&o.id===chosen?' selected':'')+(hasAnswer&&o.id===q.answer?' right':'')+(hasAnswer&&o.id===chosen&&chosen!==q.answer?' wrong':'')+'" type="button" data-choice="'+esc(o.id)+'" data-action="answer" '+(hasAnswer?'disabled':'')+'><span class="answer-key">'+('ABCD'[i])+'</span><span>'+esc(o.text)+'</span></button>').join('')+
@@ -228,24 +228,30 @@
    '<p class="lead">Hai risposto a tutte le domande. Ecco il risultato da registrare nella classifica.</p>'+
    '<div class="room-code">'+scoreValue+' <span style="font-size:.38em">/ '+bank.MAX_SCORE+'</span></div>'+
    '<p>'+Math.round(scoreValue/bank.MAX_SCORE*100)+'% di risposte corrette.</p>'+
-   '<div class="btn-row"><button type="button" data-action="save-result" class="btn">Registra e mostra la classifica</button></div></section>';
+   '<div class="btn-row"><button type="button" data-action="back" class="btn secondary">← Indietro</button><button type="button" data-action="save-result" class="btn">Registra e mostra la classifica</button></div></section>';
  }
  function render() {
-  if(current()){if(current().index>=questions.length)renderEnd();else renderQuestion();return}
+  if(current() && screen!=='home'){if(current().index>=questions.length)renderEnd();else renderQuestion();return}
   if(screen==='new')renderNew();else if(screen==='board')renderBoard();else renderHome();
  }
- let screen='home';
+ let screen=state.current?'playing':'home';
  function start(name) {
   if(current())return;
   const normalized=safeName(name);
   if(!normalized)return renderNew('Inserisci un nome.');
   state.current={name:normalized,index:0,answers:{},seed:'epica-2026',id:freshId(),token:freshToken(),remoteAck:0};
-  save();render();
+  screen='playing';save();render();
  }
  function act(action,choice) {
   if(action==='home'){screen='home';return render()}
   if(action==='new'){if(current())return render();screen='new';return render()}
-  if(action==='resume')return render();
+  if(action==='resume'){screen='playing';return render()}
+  if(action==='back'){
+   const s=current();
+   if(!s){screen='home';return render()}
+   if(s.index>0){s.index--;screen='playing';save();return render()}
+   screen='home';return render();
+  }
   if(action==='leaderboard'){if(current())return render();screen='board';return render()}
   if(action==='answer'){
    const s=current();if(!s||s.index>=questions.length)return;
